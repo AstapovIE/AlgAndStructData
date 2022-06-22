@@ -7,9 +7,8 @@ using namespace std;
 class AvlTree 
 {
 private:
-    class Node
-    {
-    public:
+    struct Node
+        {
         int key;
         int height;
         Node* left;
@@ -32,7 +31,7 @@ private:
         else if (x < t->key)
         {
             t->left = insert(x, t->left);
-
+            //checking balance
             if (get_height(t->left) - get_height(t->right) == 2) {
                 if (x < t->left->key)
                     t = smallRightRotate(t);
@@ -44,7 +43,7 @@ private:
         else if (x > t->key)
         {
             t->right = insert(x, t->right);
-
+            //checking balance
             if (get_height(t->right) - get_height(t->left) == 2) {
                 if (x > t->right->key)
                     t = smallLeftRotate(t);
@@ -105,10 +104,88 @@ private:
         print(t->right);
     }
 
+    Node* remove(int x, Node* t) {
+
+        if (t == nullptr) return nullptr; //element not found
+        if (x < t->key)
+            t->left = remove(x, t->left);
+        else if (x > t->key)
+            t->right = remove(x, t->right);
+
+        //if element found
+        else if (t->left && t->right) //if 2 child
+        {
+            Node* temp = findMin(t->right);
+            t->key = temp->key;
+            t->right = remove(t->key, t->right);
+        }
+
+        //if 1 or 0 child
+        else {
+            Node* temp = t;
+            if (t->left == nullptr)
+                t = t->right;
+            else if (t->right == nullptr)
+                t = t->left;
+            delete temp;
+        }
+
+        if (t == nullptr) return t;
+
+        //checking balance
+        if (get_height(t->left) - get_height(t->right) == 2)
+        {
+
+            if (get_height(t->left->left) - get_height(t->left->right) == 1)
+                return smallLeftRotate(t);
+
+            else
+                return bigLeftRotate(t);
+        }
+
+        else if (get_height(t->right) - get_height(t->left) == -2)
+        {
+
+            if (get_height(t->right->right) - get_height(t->right->left) == 1)
+                return smallRightRotate(t);
+
+            else
+                return bigRightRotate(t);
+        }
+
+        return t;
+    }
+
+    Node* findMax(Node* t) {
+        if (t == nullptr)
+            return nullptr;
+        else if (t->right == nullptr)
+            return t;
+        else return findMax(t->right);
+    }
+
+    Node* findMin(Node* t) {
+        if (t == nullptr)
+            return nullptr;
+        else if (t->left == nullptr)
+            return t;
+        else return findMin(t->left);
+    }
+
+    void clear(Node* t) {
+        if (!(t == nullptr)) {
+            clear(t->left);
+            clear(t->right);
+        }
+        delete t;
+    }
+
 public:
     AvlTree();
+    ~AvlTree();
     void insert(int key);
     void print();
+    void remove(int key);
 
     
 };
@@ -117,6 +194,11 @@ public:
 AvlTree::AvlTree()
 {
     root = nullptr;
+}
+
+AvlTree::~AvlTree()
+{
+    clear(root);
 }
 
 void AvlTree::insert(int key)
@@ -130,29 +212,24 @@ void AvlTree::print()
     cout << endl;
 }
 
+void AvlTree::remove(int key)
+{
+    root = remove(key, root);
+}
+
 
 
 int main()
 {
     AvlTree a;
-    a.insert(5);
+    int n;
+    cin >> n;
+    int temp;
+    for (int i = 0; i < n; ++i) {
+        cin >> temp;
+        a.insert(temp);
+    }
     a.print();
-    a.insert(8);
-    a.print();
-    a.insert(12);
-    a.print();
-    a.insert(11);
-    a.print();
-    a.insert(7);
-    a.print();
-    a.insert(6);
-    a.print();
-    a.insert(9);
-    a.print();
-    a.insert(10);
-    a.print();
-    a.insert(1);
-    a.print();
-    a.insert(4);
+    a.remove(4);
     a.print();
 }
