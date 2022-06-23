@@ -1,21 +1,21 @@
 ﻿#include <iostream>
+#include <stack>
+#include <queue>
 
 using namespace std;
 
-template<typename T>
 class BinaryTree
 {
 private:
-    template<typename T>
     class Node
     {
     public:
-        T key;
-        Node<T>* left;
-        Node<T>* right;
-        Node<T>* parent;
+        int key;
+        Node* left;
+        Node* right;
+        Node* parent;
 
-        Node(T key, Node* parent = nullptr, Node* left = nullptr, Node* right = nullptr) {
+        Node(int key, Node* parent = nullptr, Node* left = nullptr, Node* right = nullptr) {
             this->key = key;
             this->left = left;
             this->right = right;
@@ -23,54 +23,145 @@ private:
         }
     };
     int size;
-    Node<T>* head;
+    Node* head;
 
-    void print_elem(Node<T>* current);
+    void print_elem(Node* current);
+    void print_elements_in_order();
+    void print_elements_pre_order();
+    void print_elements_post_order();
+    void print_elements_level_order();
 
 public:
     BinaryTree();
     ~BinaryTree();
 
     void get_size();
-    bool find(T key);
-    void insert(T key);
+    bool find(int key);
+    void insert(int key);
     void print();
-    void remove(T key);
+    void remove(int key);
 };
 
-
-template<typename T>
-void BinaryTree<T>::print_elem(Node<T>* current)
+void BinaryTree::print_elem(Node* current)
 {
     if (current) {
         print_elem(current->left);
         cout << current->key << " ";
         print_elem(current->right);
     }
-    
-}   
 
-template<typename T>
-BinaryTree<T>::BinaryTree()
+}
+
+void BinaryTree::print_elements_in_order()
+{
+    if (head == nullptr) { return; }
+
+    Node* current = head;
+    stack<Node*> s;
+
+    while ((current != nullptr) || (!s.empty())) {
+        while (current != nullptr) {
+            s.push(current);
+            current = current->left;
+        }
+
+        current = s.top();
+        s.pop();
+        cout << current->key << " ";
+
+        current = current->right;
+    }
+}
+
+void BinaryTree::print_elements_pre_order()
+{
+    if (head == nullptr) { return; }
+    stack<Node*> s;
+    s.push(head);
+    while (!s.empty()) {
+        cout << s.top()->key << " ";
+        Node* left = s.top()->left;
+        Node* right = s.top()->right;
+        s.pop();
+        if (right != nullptr) { s.push(right); }
+        if (left != nullptr) { s.push(left); }
+    }
+
+}
+
+void BinaryTree::print_elements_post_order()
+{
+    if (head == nullptr) { return; }
+
+    stack<Node*> s;
+    s.push(head);
+
+    stack<Node*> buf;
+
+    while (s.size() != this->size) {
+        while (s.top()->right != nullptr) {
+            if (s.top()->left != nullptr) {
+                buf.push(s.top()->left);
+            }
+            s.push(s.top()->right);
+        }
+        if (s.top()->left != nullptr) {
+            s.push(s.top()->left);
+        }
+        if (s.top()->left == nullptr && s.top()->right == nullptr) {
+            if (!buf.empty()) {
+                s.push(buf.top());
+                buf.pop();
+            }
+        }
+    }
+
+    while (!s.empty()) {
+        cout << s.top()->key << " ";
+        s.pop();
+    }
+
+
+}
+
+void BinaryTree::print_elements_level_order()
+{
+    if (head == nullptr) { return; }
+
+    queue<Node*> q;
+    q.push(head);
+
+    while (!q.empty()) {
+        Node* current = q.front();
+        q.pop();
+        cout << current->key << " ";
+
+        if (current->left != nullptr) {
+            q.push(current->left);
+        }
+        if (current->right != nullptr) {
+            q.push(current->right);
+        }
+    }
+}
+
+BinaryTree::BinaryTree()
 {
     head = nullptr;
 }
 
-template<typename T>
-BinaryTree<T>::~BinaryTree()
+BinaryTree::~BinaryTree()
 {
 }
 
-template<typename T>
-void BinaryTree<T>::get_size()
+void BinaryTree::get_size()
 {
     cout << size << endl;;
 }
 
-template<typename T>
-bool BinaryTree<T>::find(T key)
+bool BinaryTree::find(int key)
 {
-    Node<T>* current = this->head;
+    Node* current = this->head;
     while (current) {
         if (current->key == key) { return true; }
         if (current->key > key) {
@@ -83,20 +174,19 @@ bool BinaryTree<T>::find(T key)
     return false;
 }
 
-template<typename T>
-void BinaryTree<T>::insert(T key)
+void BinaryTree::insert(int key)
 {
     if (head != nullptr)
     {
-        Node<T>* current = this->head;
-        while (current && current->key != key){
+        Node* current = this->head;
+        while (current) {
             if (current->key > key && current->left == nullptr) {
-                current->left = new Node<T>(key);
+                current->left = new Node(key);
                 size++;
                 return;
             }
-            if (current->key < key && current->right == nullptr) {
-                current->right = new Node<T>(key);
+            if (current->key <= key && current->right == nullptr) {
+                current->right = new Node(key);
                 size++;
                 return;
             }
@@ -107,36 +197,37 @@ void BinaryTree<T>::insert(T key)
                 current = current->right;
             }
         }
-            
+
     }
 
 
-    else { head = new Node<T>(key); size++; }
+    else { head = new Node(key); size++; }
 }
 
-template<typename T>
-void BinaryTree<T>::print()
+void BinaryTree::print()
 {
-    cout << "Elements:  ";
-    print_elem(head);
+    print_elements_in_order();
     cout << endl;
 }
 
-template<typename T>
-void BinaryTree<T>::remove(T key)
+void BinaryTree::remove(int key)
 {
 
 }
 
-
 int main()
 {
-    BinaryTree<int> a;
-    a.insert(5);
-    a.insert(6);
-    a.insert(1);
-    a.insert(2);
-    a.insert(3);
-    a.get_size();
+    BinaryTree a;
+
+    int n;
+    cin >> n;
+
+    int temp;
+    for (int i = 0; i < n; ++i) {
+        cin >> temp;
+        a.insert(temp);
+    }
+
+
     a.print();
 }
