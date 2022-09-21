@@ -33,13 +33,13 @@ void bfs(int v, const std::vector<std::vector<int>>& g)
 
 int main()
 {
-    int n;
+    int n; // how much vertex
     std::cin >> n;
 
     std::vector<std::vector<int>> graph(n);
 
-    int size;
-    int t;
+    int size;   //how much way from vertex
+    int t;  //enumeration this ways
 
     for (int i = 0; i < n; ++i) {
         std::cin >> size;
