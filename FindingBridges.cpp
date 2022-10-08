@@ -11,11 +11,9 @@ enum class Color {
 
 std::stack<int> s;
 std::vector<Color> visited;
-std::vector<int> in;
-std::vector<int> up;
 
 
-void dfs(int v, int p, const std::vector<std::vector<int>>& g, int k)
+void dfs(int v, int p, const std::vector<std::vector<int>>& g, int k, std::vector<int>& in, std::vector<int>& up)
 {
     in[v] = k;
     up[v] = in[v];
@@ -24,20 +22,32 @@ void dfs(int v, int p, const std::vector<std::vector<int>>& g, int k)
     int size = g[v].size();
     for (int i = 0; i < size; ++i) {
         int u = g[v][i];
-        if (v == p) { continue;}
+        if (u == p) { continue;}       
         if (visited[u] == Color::White) {
-            dfs(u, p, g, k+1);
+            dfs(u, v, g, k+1, in, up);
             up[v] = std::min(up[v], up[u]);
         }
         if (visited[u] == Color::Gray) {
             up[v] = std::min(up[v], in[u]);
         }
+    }
 
-        //if up[v] > in[u];
+    if (up[v] == in[v]) {
+        if (up[v] > 0) {
+            std::cout << "Bridge: " << v << " - " << p << std::endl;
+        }
+        std::cout << "Component double related :";
+        while (true){
+            int x = s.top();
+            std::cout << " " << x;
+            s.pop();
+            if (x == v) { break;}
+        }
+        std::cout << std::endl;
     }
 
     visited[v] = Color::Black;
-    std::cout << "Visited Vertex(out): " << v << std::endl;
+    //std::cout << "Visited Vertex(out): " << v << std::endl;
 
     
 }
@@ -46,6 +56,9 @@ int main()
 {
     int n;
     std::cin >> n;
+
+    std::vector<int> in(n, 0);
+    std::vector<int> up(n, 0);
 
     std::vector<std::vector<int>> graph(n);
     int size;
@@ -60,6 +73,45 @@ int main()
 
     }
 
-    dfs(0, 0, graph, 0);
+    dfs(0, 0, graph, 0, in, up);
 
 }
+/*
+10
+2
+1
+5
+3
+2
+5
+0
+3
+3
+1
+4
+2
+2
+4
+2
+3
+2
+3
+1
+0
+6
+3
+5
+7
+9
+3
+6
+8
+9
+2
+7
+9
+3
+7
+8
+6
+*/
